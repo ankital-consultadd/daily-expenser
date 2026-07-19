@@ -3,7 +3,8 @@ from django.views import View
 import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-# Create your views here.
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 class RegistrationView(View):
     def get(self, request):
@@ -20,3 +21,20 @@ class UsernameValidationView(View):
         if User.objects.filter(username=username).exists():
             return JsonResponse({"username_error": "username should only contain alphabetic charatcers"}, status=409)
         return JsonResponse({"username_valid": True})
+
+class EmailValidationView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        email = data["email"]
+        print("$$$", email)
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse(
+                {"email_error": "Email not in proper format"},
+                status=400
+            )
+        return JsonResponse(
+            {"email_valid": True}
+        )

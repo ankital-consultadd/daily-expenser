@@ -1,9 +1,11 @@
 const usernameField = document.querySelector("#usernameField")
 const feedbackArea = document.querySelector(".invalid-feedback")
+const emailField = document.querySelector("#emailField")
+const emailFeedbackArea = document.querySelector(".emailFeedBackArea")
+const showPasswordToggle = document.querySelector(".showPasswordToggle")
+const passwordField = document.querySelector("#passwordField")
 
 usernameField.addEventListener('keyup', (e) => {
-    console.log(e.target.value)
-    
     const username = e.target.value
     feedbackArea.style.display = "none";
     usernameField.classList.remove("is-invalid");
@@ -25,3 +27,46 @@ usernameField.addEventListener('keyup', (e) => {
         })
     }
 })
+
+emailField.addEventListener('keyup', (e) => {
+    const email = e.target.value
+
+    console.log(">>>")
+    console.log(email)
+    if(email.length > 0)
+    {
+        fetch("/authentication/validate-email",
+            {
+                body: JSON.stringify({email: email}),
+                method: "POST"
+            }
+        ).then((res) => res.json())
+        .then((data) => {
+            if(data.email_error){
+                emailField.classList.add("is-invalid")
+                emailFeedbackArea.style.display = "block"
+                emailFeedbackArea.innerHTML = `<p>${data.email_error}</p>`
+            }
+            else
+            {
+                emailField.classList.remove("is-invalid")
+                emailFeedbackArea.style.display = "none"
+            }
+        })
+    }
+})
+
+const handlePasswordToggle = (e) => {
+    if(showPasswordToggle.textContent == "SHOW")
+    {
+        showPasswordToggle.textContent = "HIDE";
+        passwordField.setAttribute("type", "text");
+    }
+    else
+    {
+        showPasswordToggle.textContent = "SHOW";
+        passwordField.setAttribute("type", "password");
+    }
+}
+
+showPasswordToggle.addEventListener("click", handlePasswordToggle);
